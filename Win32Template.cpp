@@ -621,7 +621,6 @@ void CreateDogMoveThread(int iType)
 {
 	RECT rc;
 	GetWindowRect(g_hBK, &rc);
-	int x;
 	switch (iType)
 	{
 	case HIDX_DOGMOVEROLL1_1:
@@ -691,7 +690,7 @@ void CreateYuKiJumpThread(UINT uEndTick)
 				Sleep(50);
 			}
 			return 0;
-		}, (void*)uEndTick));
+		}, (void*)(UINT_PTR)uEndTick));
 	HBITMAP hbm[]{ g_hbm[IIDX_JUMPUP],g_hbm[IIDX_JUMPDOWN] };
 	CreateAnThread(&g_hWnd[HIDX_YUKIJUMPD], 1, hbm, ARRAYSIZE(hbm), 400, uEndTick);
 }
@@ -706,7 +705,7 @@ void CreateYuKiJumpMoveThread(UINT uEndTick)
 	g_RefCount.insert(std::make_pair(g_hWnd[HIDX_YUKIJUMPMOVE], 2));
 	CloseHandle(CRTCreateThread([](void* pParam)->UINT
 		{
-			const UINT uEndTick = (UINT)pParam;
+			const UINT uEndTick = (UINT)(UINT_PTR)pParam;
 			const HWND hWnd = g_hWnd[HIDX_YUKIJUMPMOVE];
 			UINT uStartTick = g_uTime;
 			RECT rc;
@@ -724,7 +723,7 @@ void CreateYuKiJumpMoveThread(UINT uEndTick)
 			}
 
 			return 0;
-		}, (void*)uEndTick));
+		}, (void*)(UINT_PTR)uEndTick));
 	HBITMAP hbm[]{ g_hbm[IIDX_JUMPUP],g_hbm[IIDX_JUMPDOWN] };
 	CreateAnThread(&g_hWnd[HIDX_YUKIJUMPMOVE], 1, hbm, ARRAYSIZE(hbm), 60, uEndTick);
 }
@@ -1109,28 +1108,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				case HIDX_DOGMOVEROLL4_1:
 				case HIDX_DOGMOVEROLL5_1:
 				case HIDX_DOGMOVEROLL6_1:
-					CreateDogMoveThread(msg.wParam);
+					CreateDogMoveThread((int)msg.wParam);
 					break;
 
 				case HIDX_YUKIJUMPS1:
 				case HIDX_YUKIJUMPS2:
 				case HIDX_YUKIJUMPS3:
-					CreateYuKiJumpSThread(msg.wParam, 260u);
+					CreateYuKiJumpSThread((int)msg.wParam, 260u);
 					break;
 				case HIDX_YUKIJUMPS2_1:
 				case HIDX_YUKIJUMPS2_2:
 				case HIDX_YUKIJUMPS2_3:
-					CreateYuKiJumpSThread(HIDX_YUKIJUMPS1 + (msg.wParam - HIDX_YUKIJUMPS2_1), 1390u);
+					CreateYuKiJumpSThread(HIDX_YUKIJUMPS1 + ((int)msg.wParam - HIDX_YUKIJUMPS2_1), 1390u);
 					break;
 				case HIDX_YUKIJUMPS3_1:
 				case HIDX_YUKIJUMPS3_2:
 				case HIDX_YUKIJUMPS3_3:
-					CreateYuKiJumpSThread(HIDX_YUKIJUMPS1 + (msg.wParam - HIDX_YUKIJUMPS3_1), 1970u);
+					CreateYuKiJumpSThread(HIDX_YUKIJUMPS1 + ((int)msg.wParam - HIDX_YUKIJUMPS3_1), 1970u);
 					break;
 				case HIDX_YUKIJUMPS4_1:
 				case HIDX_YUKIJUMPS4_2:
 				case HIDX_YUKIJUMPS4_3:
-					CreateYuKiJumpSThread(HIDX_YUKIJUMPS1 + (msg.wParam - HIDX_YUKIJUMPS4_1), 2250u);
+					CreateYuKiJumpSThread(HIDX_YUKIJUMPS1 + ((int)msg.wParam - HIDX_YUKIJUMPS4_1), 2250u);
 					break;
 
 				case HIDX_YUKICLAP:
@@ -1594,7 +1593,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				case HIDX_GREYPIGEON2:
 				case HIDX_GREYPIGEON3:
 				{
-					int i = msg.wParam - HIDX_GREYPIGEON1;
+					int i = (int)msg.wParam - HIDX_GREYPIGEON1;
 					RECT rc;
 					GetWindowRect(g_hBK, &rc);
 					const int iLeft = rc.left + (rc.right - rc.left) / 10;
@@ -1798,7 +1797,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				case HIDX_YUKICUT3_2:
 				case HIDX_YUKICUT3_3:
 				case HIDX_YUKICUT3_4:
-					CreateYuKiCutThread(msg.wParam, 100, 1530u);
+					CreateYuKiCutThread((int)msg.wParam, 100, 1530u);
 					break;
 				case HIDX_YUKICUT4_1:
 					CreateYuKiCutThread(HIDX_YUKICUT4_1, 100, 1538u);

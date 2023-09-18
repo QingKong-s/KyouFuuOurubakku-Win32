@@ -14,7 +14,6 @@ void WICUniInit()
 
 HBITMAP WICLoadBitmap(PCWSTR pszFile)
 {
-	IStream* pStream;
 	IWICBitmap* pBitmap;
 	IWICBitmapDecoder* pDecoder;
 	IWICBitmapFrameDecode* pFrameDecoder;

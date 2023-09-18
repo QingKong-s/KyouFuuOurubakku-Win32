@@ -5,6 +5,10 @@
 
 小时候看这集转行去做.Net了
 
+# 运行
+
+需要将Res文件夹和bass.dll复制到应用程序所在目录
+
 # About
 原作：[強風オールバック——ゆこぴ/小津/歌愛ユキ](https://www.youtube.com/watch?v=D6DVTLvOupE)
 
