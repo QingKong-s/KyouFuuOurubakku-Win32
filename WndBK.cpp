@@ -2,6 +2,11 @@
 #include "Win32Template.h"
 
 constexpr PCWSTR WCN_BK = L"QK.WndClass.BK";
+// {D58D1733-E24A-481B-B7BE-D6A2EB9BD4D0}
+constexpr GUID c_guidTray{ 0xd58d1733, 0xe24a, 0x481b, { 0xb7, 0xbe, 0xd6, 0xa2, 0xeb, 0x9b, 0xd4, 0xd0 } };
+
+UINT g_uMsgTaskBarCreated = 0u;
+NOTIFYICONDATAW g_nid{};
 
 struct WNDBKCTX
 {
@@ -20,6 +25,8 @@ struct WNDBKCTX
 		std::wstring sText;
 	}
 	Label[4];
+
+	BOOL bClosed;
 };
 
 LRESULT CALLBACK WndProc_BK(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -38,12 +45,21 @@ ATOM RegisterClass_WndBK()
 	wcex.cbWndExtra = sizeof(void*);
 	ATOM atom = RegisterClassExW(&wcex);
 	assert(atom);
+
+	g_uMsgTaskBarCreated = RegisterWindowMessageW(L"TaskbarCreated");
 	return atom;
 }
 
 LRESULT CALLBACK WndProc_BK(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	auto p = (WNDBKCTX*)GetWindowLongPtrW(hWnd, 0);
+	if (uMsg == g_uMsgTaskBarCreated)
+	{
+		Shell_NotifyIconW(NIM_DELETE, &g_nid);
+		Shell_NotifyIconW(NIM_ADD, &g_nid);
+		return 0;
+	}
+
 	switch (uMsg)
 	{
 	case WM_NCCREATE:
@@ -54,7 +70,18 @@ LRESULT CALLBACK WndProc_BK(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		p->crBK = c_crYellow;
 		p->bLabel = FALSE;
 	}
-	return TRUE;
+	break;
+
+	case WM_CREATE:
+	{
+		g_nid.cbSize = sizeof(NOTIFYICONDATAW);
+		g_nid.hWnd = hWnd;
+		g_nid.dwInfoFlags = NIF_GUID;
+		g_nid.guidItem = c_guidTray;
+
+		Shell_NotifyIconW(NIM_ADD, &g_nid);
+	}
+	return 0;
 
 	case WM_SIZE:
 	{
@@ -94,12 +121,23 @@ LRESULT CALLBACK WndProc_BK(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 
+	case WM_DESTROY:
+		Shell_NotifyIconW(NIM_DELETE, &g_nid);
+		if (p->bClosed)
+			PostQuitMessage(0);
+		return 0;
+
 	case WM_NCDESTROY:
 	{
 		DeleteObject(p->hFont);
 		delete p;
 	}
 	return 0;
+
+	case WM_CLOSE:
+		p->bClosed = TRUE;
+		DestroyWindow(hWnd);
+		return 0;
 	}
 
 	return DefWindowProcW(hWnd, uMsg, wParam, lParam);
@@ -143,4 +181,15 @@ void WB_SetLabel(HWND hWnd, int idx, PCWSTR pszText, RECT* prcText, UINT uDTFlag
 	p->Label[idx].sText = pszText;
 	p->Label[idx].rcText = *prcText;
 	p->Label[idx].uDTFlags = uDTFlags;
+}
+
+void WB_PopTrayMsg(PCWSTR pszTitle, PCWSTR pszInfo, UINT uIcon)
+{
+	const UINT uOldFlags = g_nid.uFlags;
+	g_nid.uFlags = NIF_INFO | NIF_REALTIME;
+	wcscpy_s(g_nid.szInfo, pszInfo);
+	wcscpy_s(g_nid.szInfoTitle, pszTitle);
+	g_nid.dwInfoFlags = uIcon;
+	Shell_NotifyIconW(NIM_MODIFY, &g_nid);
+	g_nid.uFlags = uOldFlags;
 }

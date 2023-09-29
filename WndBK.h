@@ -18,3 +18,5 @@ void WB_SetText(HWND hWnd, PCWSTR pszText);
 void WB_SetLabelCount(HWND hWnd, int cLabel);
 
 void WB_SetLabel(HWND hWnd, int idx, PCWSTR pszText, RECT* prcText, UINT uDTFlags);
+
+void WB_PopTrayMsg(PCWSTR pszTitle, PCWSTR pszInfo, UINT uIcon = NIIF_INFO);

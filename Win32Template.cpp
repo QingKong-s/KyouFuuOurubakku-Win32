@@ -1,4 +1,9 @@
-﻿#pragma warning (disable:4996)
+﻿#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
+#pragma warning (disable:4996)
+
 #include <numbers>
 
 #include "Win32Template.h"
@@ -18,6 +23,7 @@
 
 #pragma comment(lib,"Winmm.lib")
 #pragma comment(lib,"Shlwapi.lib")
+#pragma comment(lib,"ComCtl32.lib")
 
 #define THM_WB_SETTEXT			3000// (pszText,hWnd)
 #define THM_WB_SETCLR			3001// (cr,hWnd)
@@ -27,6 +33,9 @@
 #define THM_DESTROYWND			3005// (hWnd,0)
 #define THM_WC_SETBITMAP		3006// (hBitmap,hWnd)
 #define THM_WC_SETCLR			3007// (cr,hWnd)
+#define THM_WB_POPTRAYMSG		3008// (pszTitle,pszInfo)
+#define THM_CREATEDLG			3009// (uType,0)
+#define THM_QUIT				3010// (0,0)
 struct TMSETLABEL
 {
 	int idx;
@@ -43,64 +52,6 @@ struct TMWCCREATE
 	int cx;
 	int cy;
 };
-
-using CRTThread = _beginthreadex_proc_type;
-
-HBITMAP		g_hbm[55]{};		// 所有位图
-HWND		g_hWnd[71]{};		// 窗口句柄
-MMRESULT	g_idTimer = 0u;		// 定时器ID
-UINT		g_uTime = 0;		// 时钟滴答计数
-HWND		g_hBK = NULL;		// 背景窗口
-int			g_iDpi = USER_DEFAULT_SCREEN_DPI;	// DPI
-UINT		g_idMainThread = 0u;// 主线程ID
-HSTREAM		g_hStream = NULL;	// 音频流
-HINSTANCE	g_hInst = NULL;		// 实例句柄
-std::unordered_map<HWND, int> g_RefCount{};		// 线程对窗口引用计数
-
-struct
-{
-	float fJumpingAnCoefficient;
-	float fBWYuKiCoefficient;
-	float fBWYuKiMaxMove;
-	int cxScreen;
-	int cyScreen;
-
-	int cxYuKiJump;
-	int cyYuKiJump;
-	int cxDog;
-	int cyDog;
-	int cxClap;
-	int cyClap;
-	int cxBlackBird;
-	int cyBlackBird;
-	int cxYuKiWalk;
-	int cyYuKiWalk;
-	int cxWhiteBird;
-	int cyWhiteBird;
-	int cxPigeon;
-	int cyPigeon;
-	int cxYuKiBack;
-	int cyYuKiBack;
-	int cxTriangle;
-	int cyTriangle;
-	int cxYuKiAhhhh;
-	int cyYuKiAhhhh;
-	int cxYuKiCut;
-	int cyYuKiCut;
-	int cxBirdWave;
-	int cyBirdWave;
-	int cxBWYuKi;
-	int cyBWYuKi;
-	int cxYuKiPeek;
-	int cyYuKiPeek;
-	int cxYuKiPeekWithBird;
-	int cyYuKiPeekWithBird;
-	int cxEgg;
-	int cyEgg;
-	int cxFight;
-	int cyFight;
-}
-g_Const;
 
 enum
 {
@@ -158,7 +109,10 @@ enum
 	IIDX_YUKIPEEK2,
 	IIDX_YUKIPEEKWITHBIRD,
 	IIDX_EGG1,
-	IIDX_EGG2
+	IIDX_EGG2,
+
+
+	IIDX_MAX
 };
 
 enum
@@ -286,7 +240,74 @@ enum
 	HIDX_YUKIPEEK2,
 	HIDX_YUKIPEEKWITHBIRD,
 	HIDX_EGG,
+
+	HIDX_TD1,
+	HIDX_TD2,
+	HIDX_TD3,
+	HIDX_TD4,
+	HIDX_TD5,
+
+	HIDX_MAX
 };
+
+using CRTThread = _beginthreadex_proc_type;
+
+HBITMAP		g_hbm[IIDX_MAX]{};	// 所有位图
+HWND		g_hWnd[HIDX_MAX]{};	// 窗口句柄
+MMRESULT	g_idTimer = 0u;		// 定时器ID
+UINT		g_uTime = 0;		// 时钟滴答计数
+HWND		g_hBK = NULL;		// 背景窗口
+int			g_iDpi = USER_DEFAULT_SCREEN_DPI;	// DPI
+UINT		g_idMainThread = 0u;// 主线程ID
+HSTREAM		g_hStream = NULL;	// 音频流
+HINSTANCE	g_hInst = NULL;		// 实例句柄
+std::unordered_map<HWND, int> g_RefCount{};		// 线程对窗口引用计数
+
+struct
+{
+	float fJumpingAnCoefficient;
+	float fBWYuKiCoefficient;
+	float fBWYuKiMaxMove;
+	int cxScreen;
+	int cyScreen;
+
+	int cxYuKiJump;
+	int cyYuKiJump;
+	int cxDog;
+	int cyDog;
+	int cxClap;
+	int cyClap;
+	int cxBlackBird;
+	int cyBlackBird;
+	int cxYuKiWalk;
+	int cyYuKiWalk;
+	int cxWhiteBird;
+	int cyWhiteBird;
+	int cxPigeon;
+	int cyPigeon;
+	int cxYuKiBack;
+	int cyYuKiBack;
+	int cxTriangle;
+	int cyTriangle;
+	int cxYuKiAhhhh;
+	int cyYuKiAhhhh;
+	int cxYuKiCut;
+	int cyYuKiCut;
+	int cxBirdWave;
+	int cyBirdWave;
+	int cxBWYuKi;
+	int cyBWYuKi;
+	int cxYuKiPeek;
+	int cyYuKiPeek;
+	int cxYuKiPeekWithBird;
+	int cyYuKiPeekWithBird;
+	int cxEgg;
+	int cyEgg;
+	int cxFight;
+	int cyFight;
+	int iTDGap;
+}
+g_Const;
 
 void CALLBACK TimerProc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
@@ -459,6 +480,7 @@ void CalcConst()
 	g_Const.cyEgg = DPI(285);
 	g_Const.cxFight = DPI(470);
 	g_Const.cyFight = DPI(341);
+	g_Const.iTDGap = DPI(80);
 }
 
 void TSWB_SetText(PCWSTR pszText)
@@ -484,6 +506,11 @@ void TSWB_SetLabel(int idx, PCWSTR pszText, RECT* prcText, UINT uDTFlags)
 	p->uDTFlags = uDTFlags;
 	p->idx = idx;
 	PostThreadMessageW(g_idMainThread, THM_WB_SETLABEL, (WPARAM)p, (LPARAM)g_hBK);
+}
+
+void TSWB_PopTrayMsg(PCWSTR pszTitle, PCWSTR pszInfo)
+{
+	PostThreadMessageW(g_idMainThread, THM_WB_POPTRAYMSG, (WPARAM)pszTitle, (LPARAM)pszInfo);
 }
 
 void TSCALL_CreateWindow(int idx)
@@ -556,13 +583,14 @@ void CreateAnThread(HWND* phWnd, int cWnds, HBITMAP* pBitmaps, int cBitmaps, int
 		}, (void*)p));
 }
 
-void CreateDogMoveThread(int idx, int x, UINT uEndTick, UINT uSwitchTick)
+void CreateDogMoveThread(int idx, int x, UINT uEndTick, UINT uSwitchTick, UINT uSustain)
 {
 	struct DMTHREADCTX
 	{
 		HWND hWnd;
 		UINT uEndTick;
 		UINT uSwitchTick;
+		UINT uSustain;
 	};
 	RECT rc;
 	GetWindowRect(g_hBK, &rc);
@@ -577,6 +605,7 @@ void CreateDogMoveThread(int idx, int x, UINT uEndTick, UINT uSwitchTick)
 	p->hWnd = g_hWnd[idx];
 	p->uEndTick = uEndTick;
 	p->uSwitchTick = uSwitchTick;
+	p->uSustain = uSustain;
 	CloseHandle(CRTCreateThread([](void* pParam)->UINT
 		{
 			auto p = (DMTHREADCTX*)pParam;
@@ -589,13 +618,12 @@ void CreateDogMoveThread(int idx, int x, UINT uEndTick, UINT uSwitchTick)
 			RECT rc, rcBK;
 			GetWindowRect(hWnd, &rc);
 			GetWindowRect(g_hBK, &rcBK);
-			const int v = (g_Const.cxScreen - (rcBK.left + (rcBK.right - rcBK.left) * 2 / 10)) / 70;// 像素每滴答
+			const int v = (g_Const.cxScreen - (rcBK.left + (rcBK.right - rcBK.left) * 2 / 10)) / p->uSustain;// 像素每滴答
 
 			int cxDistance = g_Const.cxScreen - rc.left;
 			BOOL b = FALSE;
 			for (;;)
 			{
-				//SetWindowXY(hWnd, rc.left + cxDistance * (g_uTime - uStartTick) / (uEndTick - 2 - uStartTick), rc.top);
 				SetWindowXY(hWnd, rc.left + (g_uTime - uStartTick) * v, rc.top);
 				Sleep(20);
 				if (g_uTime >= p->uEndTick)
@@ -606,6 +634,7 @@ void CreateDogMoveThread(int idx, int x, UINT uEndTick, UINT uSwitchTick)
 				}
 				else if (g_uTime >= p->uSwitchTick && !b)
 				{
+					TSWB_PopTrayMsg(L"风力实在是太强了！", L"我整条狗都快被吹飞了！");
 					b = TRUE;
 					HBITMAP hbm[]{ g_hbm[IIDX_ROLLINGDOG],g_hbm[IIDX_ROLLINGDOG2],g_hbm[IIDX_ROLLINGDOG3],g_hbm[IIDX_ROLLINGDOG4] };
 					CreateAnThread(&hWnd, 1, hbm, ARRAYSIZE(hbm), 60, p->uEndTick - 2);
@@ -624,31 +653,31 @@ void CreateDogMoveThread(int iType)
 	switch (iType)
 	{
 	case HIDX_DOGMOVEROLL1_1:
-		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 220u, 180u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 220u, 180u, 70u);
 		break;
 	case HIDX_DOGMOVEROLL2_1:
-		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 820u, 780u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 820u, 780u, 60u);
 		break;
 	case HIDX_DOGMOVEROLL2_2:
-		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 3 / 10, 980u, 940u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 3 / 10, 980u, 940u, 80u);
 		break;
 	case HIDX_DOGMOVEROLL3_1:
-		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 1354u, 1314u);
-		CreateDogMoveThread(HIDX_DOGMOVEROLL2, rc.left + (rc.right - rc.left) * 3 / 10, 1354u, 1314u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 1354u, 1314u, 64u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL2, rc.left + (rc.right - rc.left) * 3 / 10, 1354u, 1314u, 64u);
 		break;
 	case HIDX_DOGMOVEROLL4_1:
-		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 1910u, 1870u);
-		CreateDogMoveThread(HIDX_DOGMOVEROLL2, rc.left + (rc.right - rc.left) * 3 / 10, 1910u, 1870u);
-		CreateDogMoveThread(HIDX_DOGMOVEROLL3, rc.left + (rc.right - rc.left) * 4 / 10, 1910u, 1870u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 1910u, 1870u, 40u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL2, rc.left + (rc.right - rc.left) * 3 / 10, 1910u, 1870u, 40u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL3, rc.left + (rc.right - rc.left) * 4 / 10, 1910u, 1870u, 40u);
 		break;
 	case HIDX_DOGMOVEROLL5_1:
-		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 2190u, 2150u);
-		CreateDogMoveThread(HIDX_DOGMOVEROLL2, rc.left + (rc.right - rc.left) * 3 / 10, 2190u, 2150u);
-		CreateDogMoveThread(HIDX_DOGMOVEROLL3, rc.left + (rc.right - rc.left) * 4 / 10, 2190u, 2150u);
-		CreateDogMoveThread(HIDX_DOGMOVEROLL4, rc.left + (rc.right - rc.left) * 5 / 10, 2190u, 2150u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 2190u, 2150u, 50u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL2, rc.left + (rc.right - rc.left) * 3 / 10, 2190u, 2150u, 50u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL3, rc.left + (rc.right - rc.left) * 4 / 10, 2190u, 2150u, 50u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL4, rc.left + (rc.right - rc.left) * 5 / 10, 2190u, 2150u, 50u);
 		break;
 	case HIDX_DOGMOVEROLL6_1:
-		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 2270u, 2230u);
+		CreateDogMoveThread(HIDX_DOGMOVEROLL1, rc.left + (rc.right - rc.left) * 2 / 10, 2270u, 2230u, 20u);
 		break;
 	default:
 		assert(FALSE);
@@ -970,8 +999,6 @@ void CreateYuKiJumpSThread(int idx, UINT uEndTick)
 	CreateAnThread(&g_hWnd[idx], 1, hbm, ARRAYSIZE(hbm), 260, uEndTick);
 }
 
-#define TickToSec(x) ((x) * 50. / 1000.)
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pszCmdLine, _In_ int nCmdShow)
 {
 	CoInitialize(NULL);
@@ -981,6 +1008,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	WICInit();
 	CalcConst();
 	LoadAllImage();
+
+	EnumWindows([](HWND hWnd, LPARAM lParam)->BOOL
+		{
+			if (IsWindowVisible(hWnd) &&// 可见
+				!IsIconic(hWnd) &&// 没有最小化
+				!(GetWindowLongPtrW(hWnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) &&// 不是工具条窗口
+				(GetWindowLongPtrW(hWnd, GWL_STYLE) & (WS_CAPTION | WS_MINIMIZEBOX)))// 有标题栏和最小化按钮
+			{
+				ShowWindowAsync(hWnd, SW_MINIMIZE);
+			}
+			return TRUE;
+		}, 0);
 
 	ATOM atomBK = RegisterClass_WndBK();
 	ATOM atomComm = RegisterClass_WndComm();
@@ -1012,7 +1051,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		}, NULL);
 	BASS_ChannelPlay(g_hStream, TRUE);
 
-	//g_uTime = 1870;
+//#define TickToSec(x) ((x) * 50. / 1000.)
+	//g_uTime = 1040;
 	//if (g_uTime)
 	//	BASS_ChannelSetPosition(g_hStream, BASS_ChannelSeconds2Bytes(g_hStream, TickToSec(g_uTime)), BASS_POS_BYTE);
 
@@ -1046,6 +1086,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				delete p;
 			}
 			break;
+			case THM_WB_POPTRAYMSG:
+				WB_PopTrayMsg((PCWSTR)msg.wParam, (PCWSTR)msg.lParam, (rand() % 3) + 1);
+				break;
 			case THM_WC_SETBITMAP:
 				WC_SetBitmap((HWND)msg.lParam, (HBITMAP)msg.wParam);
 				break;
@@ -1627,9 +1670,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 				case HIDX_FIGHT:
 				{
+					RECT rc;
+					GetWindowRect(g_hBK, &rc);
 					g_hWnd[HIDX_FIGHT] = WC_Create(L"",
 						(g_Const.cxScreen - g_Const.cxFight) / 2,
-						(g_Const.cyScreen - g_Const.cyFight) / 2,
+						rc.top + (rc.bottom - rc.top) * 3 / 5,
 						g_Const.cxFight,
 						g_Const.cyFight);
 					g_RefCount.insert(std::make_pair(g_hWnd[HIDX_FIGHT], 1));
@@ -1760,6 +1805,79 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 						g_Const.cyYuKiAhhhh);
 					WC_SetBitmap(g_hWnd[HIDX_YUKIAHHHH], g_hbm[IIDX_AHHHH]);
 					g_RefCount.insert(std::make_pair(g_hWnd[HIDX_YUKIAHHHH], 1));
+
+					static constexpr CRTThread pfnCreateDlg = [](void* pParam)->UINT
+						{
+							UINT uType = (UINT)(UINT_PTR)pParam;
+							WCHAR szPath[MAX_PATH];
+							GetModuleFileNameW(NULL, szPath, MAX_PATH);
+							PCWSTR pszFileName = PathFindFileNameW(szPath);
+							TASKDIALOGCONFIG tdc{ sizeof(tdc) };
+							tdc.dwFlags = TDF_USE_HICON_MAIN | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION;
+							tdc.pszWindowTitle = pszFileName;
+							tdc.hMainIcon = LoadIconW(NULL, IDI_APPLICATION);
+
+							constexpr WCHAR szBack[] = L" 已停止工作";
+							PWSTR pszMain = (PWSTR)_malloca(wcslen(pszFileName) * sizeof(WCHAR) + sizeof(szBack));
+							wcscpy(pszMain, pszFileName);
+							wcscat(pszMain, szBack);
+							tdc.pszMainInstruction = pszMain;
+							tdc.pszContent = L"程序无法正常运行，因为有鸽子在大乱斗";
+
+							TASKDIALOG_BUTTON Btns[2];
+							Btns[0].nButtonID = 101;
+							Btns[0].pszButtonText = L"关闭程序";
+							Btns[1].nButtonID = 102;
+							Btns[1].pszButtonText = L"赶走鸽子(*￣︿￣)";
+
+							tdc.cButtons = ARRAYSIZE(Btns);
+							tdc.pButtons = Btns;
+
+							tdc.pfCallback = [](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LONG_PTR pRefData)->HRESULT
+								{
+									switch (uMsg)
+									{
+									case TDN_CREATED:
+									{
+										UINT uType = (UINT)pRefData;
+										g_hWnd[HIDX_TD1 + uType] = hWnd;
+										RECT rc;
+										GetWindowRect(hWnd, &rc);
+										rc.left = (g_Const.cxScreen - (rc.right - rc.left)) / 2 + (g_Const.iTDGap * uType);
+										rc.top = (g_Const.cyScreen - (rc.bottom - rc.top)) / 2 + (g_Const.iTDGap * uType);
+										SetWindowXY(hWnd, rc.left, rc.top);
+									}
+									break;
+
+									case TDN_BUTTON_CLICKED:
+										return S_OK;
+									}
+
+									return S_FALSE;
+								};
+							tdc.lpCallbackData = uType;
+
+							int n1, n2;
+							BOOL b1;
+							TaskDialogIndirect(&tdc, &n1, &n2, &b1);
+							_freea(pszMain);
+							return 0;
+						};
+
+					CloseHandle(CRTCreateThread([](void* pParam)->UINT
+						{
+							constexpr DWORD dwGapTime = 80;
+							CloseHandle(CRTCreateThread(pfnCreateDlg, (void*)0));
+							Sleep(dwGapTime);
+							CloseHandle(CRTCreateThread(pfnCreateDlg, (void*)1));
+							Sleep(dwGapTime);
+							CloseHandle(CRTCreateThread(pfnCreateDlg, (void*)2));
+							Sleep(dwGapTime);
+							CloseHandle(CRTCreateThread(pfnCreateDlg, (void*)3));
+							Sleep(dwGapTime);
+							CloseHandle(CRTCreateThread(pfnCreateDlg, (void*)4));
+							return 0;
+						}));
 				}
 				break;
 
@@ -2179,18 +2297,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				}
 			}
 			break;
+			case THM_QUIT:
+				PostQuitMessage(0);
+				break;
 			}
 		}
 	}
 	
 	WICUniInit();
-	CoUninitialize();
 	timeKillEvent(g_idTimer);
 	for (auto x : g_hbm)
 		DeleteObject(x);
 	BASS_StreamFree(g_hStream);
 	BASS_Free();
 	DestroyWindow(g_hBK);
+
+	CoUninitialize();
 	return (int)msg.wParam;
 }
 
@@ -2437,6 +2559,11 @@ void CALLBACK TimerProc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw
 
 	case 1150u:
 		TSCALL_DestroyWindow(g_hWnd[HIDX_YUKIAHHHH]);
+		PostMessageW(g_hWnd[HIDX_TD1], WM_CLOSE, 0, 0);
+		PostMessageW(g_hWnd[HIDX_TD2], WM_CLOSE, 0, 0);
+		PostMessageW(g_hWnd[HIDX_TD3], WM_CLOSE, 0, 0);
+		PostMessageW(g_hWnd[HIDX_TD4], WM_CLOSE, 0, 0);
+		PostMessageW(g_hWnd[HIDX_TD5], WM_CLOSE, 0, 0);
 		TSCALL_CreateWindow(HIDX_YUKIJUMPD2);
 		TSCALL_CreateWindow(HIDX_DOGFOUR);
 		TSWB_SetText(L"外出た瞬間");
@@ -2769,12 +2896,16 @@ void CALLBACK TimerProc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw
 		TSCALL_CreateWindow(HIDX_WHITEBIRD2);
 		return;
 
-	case 2470u:
-		// staff
-		return;
+	//case 2470u:
+	//	// staff
+	//	return;
 
 	case 2620u:
 		TSCALL_CreateWindow(HIDX_YUKICLAP);
+		return;
+
+	case 2720:
+		PostThreadMessageW(g_idMainThread, THM_QUIT, 0, 0);
 		return;
 	}
 }

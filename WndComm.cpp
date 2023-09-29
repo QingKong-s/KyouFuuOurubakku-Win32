@@ -109,6 +109,9 @@ LRESULT CALLBACK WndProc_COMM(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		delete p;
 	}
 	return 0;
+
+	case WM_CLOSE:
+		return 0;
 	}
 
 	return DefWindowProcW(hWnd, uMsg, wParam, lParam);
