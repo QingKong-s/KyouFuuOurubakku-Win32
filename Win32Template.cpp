@@ -1843,8 +1843,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 										g_hWnd[HIDX_TD1 + uType] = hWnd;
 										RECT rc;
 										GetWindowRect(hWnd, &rc);
-										rc.left = (g_Const.cxScreen - (rc.right - rc.left)) / 2 + (g_Const.iTDGap * uType);
-										rc.top = (g_Const.cyScreen - (rc.bottom - rc.top)) / 2 + (g_Const.iTDGap * uType);
+										rc.left = g_Const.cxScreen / 12 + (g_Const.iTDGap * uType);
+										rc.top = g_Const.cyScreen / 12 + (g_Const.iTDGap * uType);
 										SetWindowXY(hWnd, rc.left, rc.top);
 									}
 									break;
